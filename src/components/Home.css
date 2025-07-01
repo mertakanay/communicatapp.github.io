@@ -1,0 +1,118 @@
+.home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #2c3e50; /* Dark theme background for home page */
+  color: #ecf0f1; /* Light text color for home page */
+  padding: 80px 20px;
+  border-bottom: 1px solid rgba(236, 240, 241, 0.2); /* Light border for separation */
+}
+
+.home-title {
+  font-size: 48px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.home-tagline {
+  font-size: 20px;
+  margin-bottom: 40px;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.app-preview {
+  margin-bottom: 40px;
+}
+
+.app-image {
+  width: 300px;
+  height: auto;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.app-image:hover {
+  transform: translateY(-5px);
+}
+
+.store-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.store-button {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.store-button:hover {
+  transform: scale(1.05);
+}
+
+.store-badge {
+  height: 60px;
+  width: auto;
+}
+
+@media (max-width: 768px) {
+  .home-title {
+    font-size: 36px;
+  }
+  
+  .home-tagline {
+    font-size: 18px;
+    padding: 0 20px;
+  }
+  
+  .app-image {
+    width: 250px;
+  }
+  
+  .store-badge {
+    height: 50px;
+  }
+  
+  .store-buttons {
+    gap: 15px;
+  }
+}
+
+.page-content {
+  width: 100%;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.home h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.home p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.home a {
+  color: #1abc9c; /* Link color in home page */
+  text-decoration: none;
+  transition: color 0.3s ease;
+  padding: 5px 0; /* Padding for better click area */
+}
+
+.home a:hover {
+  color: #16a085; /* Hover color for links in home page */
+} 

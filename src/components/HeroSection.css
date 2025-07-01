@@ -1,0 +1,31 @@
+.hero {
+  background-color: #2c3e50; /* Dark theme background for hero section */
+  color: #ecf0f1; /* Light text color for hero section */
+  padding: 100px 20px;
+  text-align: center;
+  border-bottom: 1px solid rgba(236, 240, 241, 0.2); /* Light border for separation */
+}
+
+.hero h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.hero p {
+  font-size: 18px;
+  margin-bottom: 40px;
+}
+
+.hero a {
+  background-color: #1abc9c; /* Button background color */
+  color: #ecf0f1; /* Button text color */
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow for button */
+}
+
+.hero a:hover {
+  background-color: #16a085; /* Hover color for button */
+} 
