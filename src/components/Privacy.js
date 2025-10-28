@@ -26,12 +26,37 @@ function Privacy() {
               </ul>
             </section>
 
+            {/* NEW SECTION for Android-sensitive data */}
+            <section>
+              <h2>1.1 Permissions and Sensitive Data Access</h2>
+              <p>Communicat requests access to certain data and device features to enable specific functionality. These include:</p>
+              <ul>
+                <li>
+                  <strong>Contacts (READ_CONTACTS, WRITE_CONTACTS):</strong> Used to find which of your contacts are also on Communicat so you can connect with them. We do not store your full contact list or share it externally.
+                </li>
+                <li>
+                  <strong>Media (READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO):</strong> Allows you to send, view, and play shared photos, videos, and audio messages within chats. Media access is limited to files you explicitly select.
+                </li>
+                <li>
+                  <strong>Microphone / Audio Recording:</strong> Used when you record voice messages or audio notes. Recordings are processed and stored securely and may be transcribed to text only for your account.
+                </li>
+                <li>
+                  <strong>Location (ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION, ACCESS_BACKGROUND_LOCATION):</strong> Used when you share your live or current location in conversations or for contextual message analysis. Location data is only collected with your consent and is not tracked continuously.
+                </li>
+              </ul>
+              <p>
+                You can revoke any of these permissions at any time in your device settings. Communicat continues to work with limited functionality if certain permissions are disabled.
+              </p>
+            </section>
+
             <section>
               <h2>2. Use of Your Data</h2>
               <p>We use your data to:</p>
               <ul>
                 <li>Provide message evaluations and feedback</li>
                 <li>Enable WhatsApp integration and reply to forwarded messages</li>
+                <li>Allow photo, video, and audio sharing between users</li>
+                <li>Support location-based features such as sharing your position with a contact</li>
                 <li>Maintain subscription access and billing logic</li>
                 <li>Improve and personalize the app experience</li>
               </ul>
@@ -51,13 +76,14 @@ function Privacy() {
                 <li><strong>OpenAI:</strong> For message evaluations</li>
                 <li><strong>Twilio:</strong> For WhatsApp message delivery</li>
                 <li><strong>Firebase:</strong> For authentication, storage, and database management</li>
+                <li><strong>Google Play / App Store:</strong> For subscription and billing management</li>
               </ul>
             </section>
 
             <section>
               <h2>5. Data Retention</h2>
               <p>
-                Messages and evaluations may be stored indefinitely unless you request deletion. We retain subscription and authentication records for compliance and account continuity.
+                Messages, media, and evaluations may be stored indefinitely unless you request deletion. We retain subscription and authentication records for compliance and account continuity.
               </p>
             </section>
 
@@ -106,4 +132,4 @@ function Privacy() {
   );
 }
 
-export default Privacy; 
+export default Privacy;
