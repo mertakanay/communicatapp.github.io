@@ -5,39 +5,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 :root {
-  --pastelCream: #f4ecd6;
-  --pastelBlue: #a0e3f0;
+  --midnight: #0d1b2a;         /* first shade of midnight */
+  --app-background: #1b263b;   /* second shade of midnight */
+  --pastel-cream: #fffff0;     /* main pastel white */
+  --pastel-charcoal: #2f2f2f;  /* soft black / very dark gray */
+  --pastel-green: #d5f5e3;     /* main pastel green */
+  --pastel-blue: #d0e8ff;      /* main pastel blue */
+  --pastel-coral: #ffccbc;     /* main pastel red */
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background-color: #0d1b2a;
-  color: #ecf0f1;
-  font-family: 'Inter', 'Arial', sans-serif;
-  line-height: 1.6;
-  scroll-behavior: smooth;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: #ecf0f1;
-}
-
-a {
-  color: #1abc9c;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-a:hover {
-  color: #16a085;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-}
