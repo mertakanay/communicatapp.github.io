@@ -11,7 +11,7 @@ function Privacy() {
             <p className="effective-date">Effective Date: May 26, 2025</p>
 
             <p>
-              Communicat is a product of <strong>Rated10 Inc.</strong>. This Privacy Policy explains how we collect, use, and protect your information when you use the Communicat app and services.
+              Communicat is a product of <strong>Rated10, LLC.</strong>. This Privacy Policy explains how we collect, use, and protect your information when you use the Communicat app and services.
             </p>
 
             <section>
@@ -26,7 +26,6 @@ function Privacy() {
               </ul>
             </section>
 
-            {/* NEW SECTION for Android-sensitive data */}
             <section>
               <h2>1.1 Permissions and Sensitive Data Access</h2>
               <p>Communicat requests access to certain data and device features to enable specific functionality. These include:</p>
