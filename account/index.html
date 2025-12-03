@@ -152,6 +152,24 @@
       // UI: Subscription Active
       // ---------------------------------------------
       if (data.hasActiveSubscription) {
+        function openPortal() {
+          fetch(
+            "https://us-central1-the-fighting-app-81725.cloudfunctions.net/createStripePortalSession",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                userId: data.userId,
+                returnUrl: window.location.href,
+              }),
+            }
+          )
+            .then((res) => res.json())
+            .then((json) => {
+              if (json.url) window.location.href = json.url;
+            });
+        }
+
         return (
           <div className="container">
             <h1>You're already subscribed 🎉</h1>
@@ -159,8 +177,13 @@
             <div className="card">
               <p>Your subscription is active. You can now use Communicat fully in WhatsApp.</p>
               <p className="small">
-                Tip: If your messages aren’t being evaluated, try sending a new message to refresh the session.
+                Tip: If your messages aren’t being evaluated, try sending a new message.
               </p>
+
+              {/* ⭐ ADDED BUTTON */}
+              <button onClick={openPortal}>
+                Manage / Cancel Subscription
+              </button>
             </div>
           </div>
         );
