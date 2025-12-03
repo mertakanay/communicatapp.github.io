@@ -9,6 +9,9 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
+  <!-- ⭐ REQUIRED FOR JSX TO WORK IN GITHUB PAGES -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -17,74 +20,23 @@
       color: #fef7ec;
       font-family: Arial, sans-serif;
     }
-
-    .container {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 32px;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 28px;
-      margin-bottom: 16px;
-      color: #fef7ec;
-    }
-
-    p {
-      font-size: 16px;
-      line-height: 1.5;
-      margin-bottom: 20px;
-      color: #fef7ec;
-    }
-
-    .loader {
-      margin-top: 40px;
-      font-size: 18px;
-      opacity: 0.7;
-    }
-
-    .card {
-      background: #2a2a2a;
-      padding: 24px;
-      border-radius: 12px;
-      margin-top: 20px;
-      text-align: left;
-    }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 20px;
-      background-color: #4ea8de;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      opacity: 0.9;
-    }
-
-    .error {
-      color: #ff7b7b;
-      margin-top: 20px;
-      font-weight: bold;
-    }
-
-    .small {
-      font-size: 14px;
-      opacity: 0.7;
-    }
+    .container { max-width: 480px; margin: 0 auto; padding: 32px; text-align: center; }
+    h1 { font-size: 28px; margin-bottom: 16px; color: #fef7ec; }
+    p { font-size: 16px; line-height: 1.5; margin-bottom: 20px; }
+    .loader { margin-top: 40px; font-size: 18px; opacity: 0.7; }
+    .card { background: #2a2a2a; padding: 24px; border-radius: 12px; margin-top: 20px; text-align: left; }
+    button { width: 100%; padding: 14px; margin-top: 20px; background-color: #4ea8de; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; }
+    button:hover { opacity: 0.9; }
+    .error { color: #ff7b7b; margin-top: 20px; font-weight: bold; }
+    .small { font-size: 14px; opacity: 0.7; }
   </style>
 </head>
 
 <body>
   <div id="root"></div>
 
-  <script type="text/javascript">
+  <!-- ⭐ JSX MUST BE INSIDE type="text/babel" -->
+  <script type="text/babel">
     const { useState, useEffect } = React;
 
     function AccountApp() {
@@ -120,9 +72,6 @@
           });
       }, []);
 
-      // ---------------------------------------------
-      // UI: Loading
-      // ---------------------------------------------
       if (loading) {
         return (
           <div className="container">
@@ -132,9 +81,6 @@
         );
       }
 
-      // ---------------------------------------------
-      // UI: Error
-      // ---------------------------------------------
       if (error) {
         return (
           <div className="container">
@@ -144,115 +90,71 @@
         );
       }
 
-      // ---------------------------------------------
-      // UI: Subscription Active
-      // ---------------------------------------------
       if (data.hasActiveSubscription) {
         return (
           <div className="container">
             <h1>You're already subscribed 🎉</h1>
-
             <div className="card">
-              <p>
-                Your subscription is active. You can now use Communicat fully in WhatsApp.
-              </p>
-              <p className="small">
-                Tip: If your messages aren’t being evaluated, try sending a new message to refresh the session.
-              </p>
+              <p>Your subscription is active. You can now use Communicat fully in WhatsApp.</p>
             </div>
           </div>
         );
       }
 
-      // ---------------------------------------------
-      // UI: Trial Active
-      // ---------------------------------------------
       if (data.hasActiveTrial) {
         return (
           <div className="container">
             <h1>Your free trial is active 🎉</h1>
-
             <div className="card">
               <p>Your trial ends on:</p>
               <p><strong>{new Date(data.trialEndsAt).toLocaleString()}</strong></p>
-
-              <p className="small">
-                You can continue using Communicat normally in WhatsApp until your trial ends.
-              </p>
             </div>
           </div>
         );
       }
 
-      // ---------------------------------------------
-      // UI: Subscription Required
-      // ---------------------------------------------
-    function startCheckout(selectedPriceId) {
+      function startCheckout(selectedPriceId) {
         const urlParams = new URLSearchParams(window.location.search);
         const tokenId = urlParams.get("t");
+
         fetch(
-            "https://us-central1-the-fighting-app-81725.cloudfunctions.net/createStripeCheckoutSession",
-            {
+          "https://us-central1-the-fighting-app-81725.cloudfunctions.net/createStripeCheckoutSession",
+          {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                userId: data.userId,
-                priceId: selectedPriceId,
-                successUrl: window.location.origin + "/account/success.html",
-                cancelUrl: window.location.origin + "/account/cancel.html",
-                tokenId: tokenId,
+              userId: data.userId,
+              priceId: selectedPriceId,
+              successUrl: window.location.origin + "/account/success.html",
+              cancelUrl: window.location.origin + "/account/cancel.html",
+              tokenId: tokenId,
             }),
-            }
+          }
         )
-            .then((res) => res.json())
-            .then((json) => {
+          .then((res) => res.json())
+          .then((json) => {
             if (json.checkoutUrl) {
-                window.location.href = json.checkoutUrl;
+              window.location.href = json.checkoutUrl;
             } else {
-                alert("Error starting checkout");
+              alert("Error starting checkout");
             }
-            });
-        }
+          });
+      }
 
-        return (
+      return (
         <div className="container">
-            <h1>Activate Communicat</h1>
+          <h1>Activate Communicat</h1>
 
-            <div className="card">
+          <div className="card">
             <p>Your WhatsApp number: <strong>{data.phoneMasked}</strong></p>
             <p>Select a plan to continue:</p>
 
-            
-            {/* FULL ACCESS PLAN */}
-            {/*<div style={{
-                marginTop: "20px",
-                padding: "20px",
-                background: "#333",
-                borderRadius: "12px",
-                border: "2px solid #4ea8de"
-            }}>
-                <h3 style={{ margin: "0 0 10px 0", color: "#fef7ec" }}>
-                Communicat Full Access
-                </h3>
-                <p style={{ margin: 0, color: "#ddd" }}>
-                Access all premium communication-enhancement features across both
-                the Communicat app and WhatsApp.
-                </p>
-
-                <button
-                style={{ marginTop: "16px" }}
-                onClick={() => startCheckout("price_1SYCqeEltJqyAGZ0bN7Izg72")}
-                >
-                Subscribe – $4.99 / month
-                </button>
-            </div>*/}
-
             <p className="small" style={{ marginTop: "22px" }}>
-                Secure payments powered by Stripe.
+              Secure payments powered by Stripe.
             </p>
-            </div>
+          </div>
         </div>
-        );
+      );
     }
 
     ReactDOM.createRoot(document.getElementById("root")).render(<AccountApp />);
