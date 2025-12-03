@@ -99,12 +99,14 @@
       const token = new URLSearchParams(window.location.search).get("t");
 
       useEffect(() => {
+        // CASE 1 → No token → Show landing screen
         if (!token) {
-          setError("Missing token. Please open this link from WhatsApp.");
           setLoading(false);
+          setData({ landing: true });
           return;
         }
 
+        // CASE 2 → Token exists → Validate
         fetch(
           "https://us-central1-the-fighting-app-81725.cloudfunctions.net/resolveWhatsAppToken?t=" +
             token
@@ -112,7 +114,9 @@
           .then((res) => res.json())
           .then((json) => {
             if (json.error) {
+              // Mark error but still allow landing screen content
               setError(json.error);
+              setData({ landing: true });
             } else {
               setData(json);
             }
@@ -120,6 +124,7 @@
           })
           .catch(() => {
             setError("Network error. Please try again.");
+            setData({ landing: true });
             setLoading(false);
           });
       }, []);
@@ -137,13 +142,57 @@
       }
 
       // ---------------------------------------------
-      // UI: Error
+      // UI: ERROR + LANDING SCREEN
       // ---------------------------------------------
-      if (error) {
+      if (error && data?.landing) {
         return (
           <div className="container">
             <h1>Error</h1>
             <p className="error">{error}</p>
+
+            <div className="card">
+              <p>
+                You can still manage your Communicat account using the app.
+              </p>
+
+              <button
+                onClick={() => {
+                  window.location.href = "https://communicatapp.com/app";
+                }}
+              >
+                Open Communicat App
+              </button>
+
+              <p className="small" style={{ marginTop: "22px" }}>
+                If you arrived here from WhatsApp, return and tap the link again.
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      // ---------------------------------------------
+      // UI: LANDING SCREEN (NO TOKEN)
+      // ---------------------------------------------
+      if (data?.landing && !error) {
+        return (
+          <div className="container">
+            <h1>Communicat Account</h1>
+
+            <div className="card">
+              <p>
+                To manage your subscription or trial, please open this page from
+                the link provided in WhatsApp.
+              </p>
+
+              <button
+                onClick={() => {
+                  window.location.href = "https://communicatapp.com/app";
+                }}
+              >
+                Open Communicat App
+              </button>
+            </div>
           </div>
         );
       }
@@ -152,24 +201,6 @@
       // UI: Subscription Active
       // ---------------------------------------------
       if (data.hasActiveSubscription) {
-        function openPortal() {
-          fetch(
-            "https://us-central1-the-fighting-app-81725.cloudfunctions.net/createStripePortalSession",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                userId: data.userId,
-                returnUrl: window.location.href,
-              }),
-            }
-          )
-            .then((res) => res.json())
-            .then((json) => {
-              if (json.url) window.location.href = json.url;
-            });
-        }
-
         return (
           <div className="container">
             <h1>You're already subscribed 🎉</h1>
@@ -177,13 +208,8 @@
             <div className="card">
               <p>Your subscription is active. You can now use Communicat fully in WhatsApp.</p>
               <p className="small">
-                Tip: If your messages aren’t being evaluated, try sending a new message.
+                Tip: If your messages aren’t being evaluated, try sending a new message to refresh the session.
               </p>
-
-              {/* ⭐ ADDED BUTTON */}
-              <button onClick={openPortal}>
-                Manage / Cancel Subscription
-              </button>
             </div>
           </div>
         );
@@ -251,7 +277,7 @@
             <p>Your WhatsApp number: <strong>{data.phoneMasked}</strong></p>
             <p>Select a plan to continue:</p>
 
-            {/* FULL ACCESS PLAN - ENABLED */}
+            {/* FULL ACCESS PLAN */}
             <div style={{
               marginTop: "20px",
               padding: "20px",
