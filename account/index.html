@@ -354,11 +354,18 @@
       }
 
       function openStripePortal() {
-        // Static Stripe Billing Portal login page you provided
-        window.open(
-          "https://billing.stripe.com/p/login/14A8wP7Ht28ngat8hKfQI00",
-          "_blank"
-        );
+        if (userDoc?.subscriptionProvider === "stripe") {
+          // Stripe customers → go to Billing Portal
+          window.open(
+            "https://billing.stripe.com/p/login/14A8wP7Ht28ngat8hKfQI00",
+            "_blank"
+          );
+        } else {
+          // App Store / Google Play customers → show message
+          alert(
+            "To manage your subscription, please use your App Store or Google Play subscription settings."
+          );
+        }
       }
 
       // -------------------------------
