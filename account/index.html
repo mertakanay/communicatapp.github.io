@@ -12,6 +12,11 @@
   <!-- ⭐ REQUIRED FOR JSX IN GITHUB PAGES -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
+  <!-- Firebase SDKs (compat versions for simplicity) -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -71,6 +76,22 @@
       opacity: 0.9;
     }
 
+    .secondary-button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      background-color: #444;
+      color: #fef7ec;
+      border: 1px solid #777;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .secondary-button:hover {
+      opacity: 0.95;
+    }
+
     .error {
       color: #ff7b7b;
       margin-top: 20px;
@@ -81,32 +102,153 @@
       font-size: 14px;
       opacity: 0.7;
     }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #333;
+      color: #fef7ec;
+      margin-bottom: 8px;
+    }
+
+    .badge-active {
+      background: #168f5b;
+    }
+
+    .badge-trial {
+      background: #a87b00;
+    }
+
+    .badge-none {
+      background: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #555;
+      margin-top: 8px;
+      margin-bottom: 12px;
+      background: #111;
+      color: #fef7ec;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    label {
+      font-size: 14px;
+      display: block;
+      margin-top: 8px;
+      color: #fef7ec;
+    }
   </style>
 </head>
 
 <body>
   <div id="root"></div>
+  <!-- Invisible container for Firebase Recaptcha -->
+  <div id="recaptcha-container"></div>
 
   <!-- MUST BE type="text/babel" FOR JSX -->
   <script type="text/babel">
     const { useState, useEffect } = React;
 
+    // 🔧 TODO: REPLACE WITH YOUR REAL FIREBASE CONFIG
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "the-fighting-app-81725",
+      // ...the rest of your config...
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const firestore = firebase.firestore();
+
     function AccountApp() {
       const [loading, setLoading] = useState(true);
-      const [error, setError] = useState("");
-      const [data, setData] = useState(null);
+
+      // WhatsApp token–related state
+      const [waData, setWaData] = useState(null);      // data from resolveWhatsAppToken
+      const [tokenError, setTokenError] = useState(""); // e.g., "Invalid token"
+      const [fatalError, setFatalError] = useState(""); // network-level error
+
+      // Firebase auth state
+      const [authReady, setAuthReady] = useState(false);
+      const [firebaseUser, setFirebaseUser] = useState(null);
+
+      // Firestore user document (for default account view)
+      const [userDoc, setUserDoc] = useState(null);
+      const [userDocLoading, setUserDocLoading] = useState(true);
+      const [userDocError, setUserDocError] = useState("");
+
+      // Phone login UI state
+      const [phoneInput, setPhoneInput] = useState("");
+      const [codeInput, setCodeInput] = useState("");
+      const [verificationSent, setVerificationSent] = useState(false);
+      const [loginBusy, setLoginBusy] = useState(false);
+      const [loginError, setLoginError] = useState("");
 
       const token = new URLSearchParams(window.location.search).get("t");
 
+      // -------------------------------
+      // Watch Firebase Auth state
+      // -------------------------------
       useEffect(() => {
-        // CASE 1 → No token → Show landing screen
-        if (!token) {
-          setLoading(false);
-          setData({ landing: true });
+        const unsub = auth.onAuthStateChanged((user) => {
+          setFirebaseUser(user || null);
+          setAuthReady(true);
+        });
+        return () => unsub();
+      }, []);
+
+      // -------------------------------
+      // If user is logged in (no matter token or not), load their Firestore doc
+      // -------------------------------
+      useEffect(() => {
+        if (!authReady) return;
+
+        if (!firebaseUser) {
+          setUserDoc(null);
+          setUserDocLoading(false);
           return;
         }
 
-        // CASE 2 → Token exists → Validate
+        setUserDocLoading(true);
+        firestore
+          .collection("Users")
+          .doc(firebaseUser.uid)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              setUserDoc(doc.data());
+            } else {
+              setUserDoc(null);
+            }
+            setUserDocLoading(false);
+          })
+          .catch((err) => {
+            console.error("Error loading user account doc:", err);
+            setUserDocError("Couldn't load your account details.");
+            setUserDocLoading(false);
+          });
+      }, [authReady, firebaseUser]);
+
+      // -------------------------------
+      // WhatsApp token → resolve via Cloud Function
+      // -------------------------------
+      useEffect(() => {
+        // If no token → skip WhatsApp flow, show default account view
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
         fetch(
           "https://us-central1-the-fighting-app-81725.cloudfunctions.net/resolveWhatsAppToken?t=" +
             token
@@ -114,131 +256,113 @@
           .then((res) => res.json())
           .then((json) => {
             if (json.error) {
-              // Mark error but still allow landing screen content
-              setError(json.error);
-              setData({ landing: true });
+              // Token exists but invalid → show error + default account UI
+              setTokenError(json.error);
+              setWaData(null);
             } else {
-              setData(json);
+              setWaData(json);
             }
             setLoading(false);
           })
           .catch(() => {
-            setError("Network error. Please try again.");
-            setData({ landing: true });
+            setFatalError("Network error. Please try again.");
             setLoading(false);
           });
-      }, []);
+      }, [token]);
 
-      // ---------------------------------------------
-      // UI: Loading
-      // ---------------------------------------------
-      if (loading) {
-        return (
-          <div className="container">
-            <h1>Loading your account…</h1>
-            <p className="loader">Please wait</p>
-          </div>
+      // -------------------------------
+      // Phone auth helpers
+      // -------------------------------
+      function ensureRecaptcha() {
+        if (!window.recaptchaVerifier) {
+          window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(
+            "recaptcha-container",
+            {
+              size: "invisible",
+            }
+          );
+        }
+        return window.recaptchaVerifier;
+      }
+
+      function startPhoneLogin() {
+        setLoginError("");
+        if (!phoneInput) {
+          setLoginError("Please enter your phone number in international format (e.g. +573001234567).");
+          return;
+        }
+        setLoginBusy(true);
+
+        try {
+          const appVerifier = ensureRecaptcha();
+          auth
+            .signInWithPhoneNumber(phoneInput, appVerifier)
+            .then((confirmationResult) => {
+              window.confirmationResult = confirmationResult;
+              setVerificationSent(true);
+              setLoginBusy(false);
+            })
+            .catch((err) => {
+              console.error("Phone login error:", err);
+              setLoginError(err.message || "Failed to send verification code.");
+              setLoginBusy(false);
+            });
+        } catch (err) {
+          console.error("Unexpected phone login error:", err);
+          setLoginError("Unexpected error. Please reload and try again.");
+          setLoginBusy(false);
+        }
+      }
+
+      function confirmLoginCode() {
+        setLoginError("");
+        if (!codeInput) {
+          setLoginError("Enter the SMS code you received.");
+          return;
+        }
+        if (!window.confirmationResult) {
+          setLoginError("Verification session not found. Please request a new code.");
+          return;
+        }
+        setLoginBusy(true);
+        window.confirmationResult
+          .confirm(codeInput)
+          .then(() => {
+            // Auth state listener will update firebaseUser
+            setLoginBusy(false);
+            setVerificationSent(false);
+            setCodeInput("");
+          })
+          .catch((err) => {
+            console.error("Code confirmation error:", err);
+            setLoginError(err.message || "Invalid code. Please try again.");
+            setLoginBusy(false);
+          });
+      }
+
+      function handleLogout() {
+        auth
+          .signOut()
+          .then(() => {
+            window.location.reload();
+          })
+          .catch((err) => {
+            console.error("Logout error:", err);
+          });
+      }
+
+      function openStripePortal() {
+        // Static Stripe Billing Portal login page you provided
+        window.open(
+          "https://billing.stripe.com/p/login/14A8wP7Ht28ngat8hKfQI00",
+          "_blank"
         );
       }
 
-      // ---------------------------------------------
-      // UI: ERROR + LANDING SCREEN
-      // ---------------------------------------------
-      if (error && data?.landing) {
-        return (
-          <div className="container">
-            <h1>Error</h1>
-            <p className="error">{error}</p>
-
-            <div className="card">
-              <p>
-                You can still manage your Communicat account using the app.
-              </p>
-
-              <button
-                onClick={() => {
-                  window.location.href = "https://communicatapp.com/app";
-                }}
-              >
-                Open Communicat App
-              </button>
-
-              <p className="small" style={{ marginTop: "22px" }}>
-                If you arrived here from WhatsApp, return and tap the link again.
-              </p>
-            </div>
-          </div>
-        );
-      }
-
-      // ---------------------------------------------
-      // UI: LANDING SCREEN (NO TOKEN)
-      // ---------------------------------------------
-      if (data?.landing && !error) {
-        return (
-          <div className="container">
-            <h1>Communicat Account</h1>
-
-            <div className="card">
-              <p>
-                To manage your subscription or trial, please open this page from
-                the link provided in WhatsApp.
-              </p>
-
-              <button
-                onClick={() => {
-                  window.location.href = "https://communicatapp.com/app";
-                }}
-              >
-                Open Communicat App
-              </button>
-            </div>
-          </div>
-        );
-      }
-
-      // ---------------------------------------------
-      // UI: Subscription Active
-      // ---------------------------------------------
-      if (data.hasActiveSubscription) {
-        return (
-          <div className="container">
-            <h1>You're already subscribed 🎉</h1>
-
-            <div className="card">
-              <p>Your subscription is active. You can now use Communicat fully in WhatsApp.</p>
-              <p className="small">
-                Tip: If your messages aren’t being evaluated, try sending a new message to refresh the session.
-              </p>
-            </div>
-          </div>
-        );
-      }
-
-      // ---------------------------------------------
-      // UI: Trial Active
-      // ---------------------------------------------
-      if (data.hasActiveTrial) {
-        return (
-          <div className="container">
-            <h1>Your free trial is active 🎉</h1>
-
-            <div className="card">
-              <p>Your trial ends on:</p>
-              <p><strong>{new Date(data.trialEndsAt).toLocaleString()}</strong></p>
-
-              <p className="small">
-                You can continue using Communicat normally in WhatsApp until your trial ends.
-              </p>
-            </div>
-          </div>
-        );
-      }
-
-      // ---------------------------------------------
-      // START CHECKOUT
-      // ---------------------------------------------
-      function startCheckout(selectedPriceId) {
+      // -------------------------------
+      // START CHECKOUT (WhatsApp flow)
+      // -------------------------------
+      function startCheckout(selectedPriceId, waUserId) {
         const urlParams = new URLSearchParams(window.location.search);
         const tokenId = urlParams.get("t");
 
@@ -248,7 +372,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              userId: data.userId,
+              userId: waUserId,
               priceId: selectedPriceId,
               successUrl: window.location.origin + "/account/success.html",
               cancelUrl: window.location.origin + "/account/cancel.html",
@@ -266,44 +390,267 @@
           });
       }
 
-      // ---------------------------------------------
-      // UI: Subscription Required
-      // ---------------------------------------------
-      return (
-        <div className="container">
-          <h1>Activate Communicat</h1>
+      // -------------------------------
+      // LOADING STATE
+      // -------------------------------
+      if (loading) {
+        return (
+          <div className="container">
+            <h1>Loading your account…</h1>
+            <p className="loader">Please wait</p>
+          </div>
+        );
+      }
 
-          <div className="card">
-            <p>Your WhatsApp number: <strong>{data.phoneMasked}</strong></p>
-            <p>Select a plan to continue:</p>
+      // -------------------------------
+      // FATAL NETWORK ERROR
+      // -------------------------------
+      if (fatalError) {
+        return (
+          <div className="container">
+            <h1>Error</h1>
+            <p className="error">{fatalError}</p>
+            <p className="small">
+              If this keeps happening, please try again later or contact support.
+            </p>
+          </div>
+        );
+      }
 
-            {/* FULL ACCESS PLAN */}
-            <div style={{
-              marginTop: "20px",
-              padding: "20px",
-              background: "#333",
-              borderRadius: "12px",
-              border: "2px solid #4ea8de"
-            }}>
-              <h3 style={{ margin: "0 0 10px 0", color: "#fef7ec" }}>
-                Communicat Full Access
-              </h3>
+      // ============================================================
+      // 1) WHATSAPP FLOW (VALID TOKEN) → Original behavior preserved
+      // ============================================================
+      if (waData && waData.userId) {
+        // Subscription Active
+        if (waData.hasActiveSubscription) {
+          return (
+            <div className="container">
+              <h1>You're already subscribed 🎉</h1>
 
-              <p style={{ margin: 0, color: "#ddd" }}>
-                Access all premium communication-enhancement features across both
-                the Communicat app and WhatsApp.
+              <div className="card">
+                <p>Your subscription is active. You can now use Communicat fully in WhatsApp.</p>
+                <p className="small">
+                  Tip: If your messages aren’t being evaluated, try sending a new message to refresh the session.
+                </p>
+              </div>
+            </div>
+          );
+        }
+
+        // Trial Active
+        if (waData.hasActiveTrial) {
+          return (
+            <div className="container">
+              <h1>Your free trial is active 🎉</h1>
+
+              <div className="card">
+                <p>Your trial ends on:</p>
+                <p><strong>{new Date(waData.trialEndsAt).toLocaleString()}</strong></p>
+
+                <p className="small">
+                  You can continue using Communicat normally in WhatsApp until your trial ends.
+                </p>
+              </div>
+            </div>
+          );
+        }
+
+        // Subscription Required (WhatsApp token flow)
+        return (
+          <div className="container">
+            <h1>Activate Communicat</h1>
+
+            <div className="card">
+              <p>Your WhatsApp number: <strong>{waData.phoneMasked}</strong></p>
+              <p>Select a plan to continue:</p>
+
+              {/* FULL ACCESS PLAN - ENABLED */}
+              <div
+                style={{
+                  marginTop: "20px",
+                  padding: "20px",
+                  background: "#333",
+                  borderRadius: "12px",
+                  border: "2px solid #4ea8de",
+                }}
+              >
+                <h3
+                  style={{
+                    margin: "0 0 10px 0",
+                    color: "#fef7ec",
+                  }}
+                >
+                  Communicat Full Access
+                </h3>
+
+                <p style={{ margin: 0, color: "#ddd" }}>
+                  Access all premium communication-enhancement features across both
+                  the Communicat app and WhatsApp.
+                </p>
+
+                <button
+                  style={{ marginTop: "16px" }}
+                  onClick={() =>
+                    startCheckout("price_1SYCqeEltJqyAGZ0bN7Izg72", waData.userId)
+                  }
+                >
+                  Subscribe – $4.99 / month
+                </button>
+              </div>
+
+              <p className="small" style={{ marginTop: "22px" }}>
+                Secure payments powered by Stripe.
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      // ============================================================
+      // 2) DEFAULT ACCOUNT VIEW (NO TOKEN OR INVALID TOKEN)
+      // ============================================================
+
+      // Helper: compute subscription status from Firestore doc
+      function computeStatusFromUserDoc(doc) {
+        if (!doc) {
+          return {
+            label: "No active subscription",
+            styleClass: "badge-none",
+          };
+        }
+
+        const nowMs = Date.now();
+        const trialEndsAtMs = doc.trialEndsAt?.toMillis
+          ? doc.trialEndsAt.toMillis()
+          : null;
+        const hasActiveTrial =
+          trialEndsAtMs && nowMs < trialEndsAtMs && doc.isTrialFinished === false;
+
+        const legacyActive =
+          doc.isSubscribed === true &&
+          doc.subscriptionEndsAt?.toMillis &&
+          nowMs < doc.subscriptionEndsAt.toMillis();
+
+        const hasActiveSubscription = doc.isSubscriptionActive === true || legacyActive;
+
+        if (hasActiveSubscription) {
+          return {
+            label: "Active subscription",
+            styleClass: "badge-active",
+          };
+        }
+
+        if (hasActiveTrial) {
+          return {
+            label: "Trial active",
+            styleClass: "badge-trial",
+          };
+        }
+
+        return {
+          label: "No active subscription",
+          styleClass: "badge-none",
+        };
+      }
+
+      // While auth / Firestore still loading (for default flow)
+      if (!authReady || userDocLoading) {
+        return (
+          <div className="container">
+            <h1>Communicat Account</h1>
+            {tokenError && <p className="error">{tokenError}</p>}
+            <p className="loader">Loading account details…</p>
+          </div>
+        );
+      }
+
+      // If NOT logged in → show login UI
+      if (!firebaseUser) {
+        return (
+          <div className="container">
+            <h1>Communicat Account</h1>
+            {tokenError && <p className="error">{tokenError}</p>}
+
+            <div className="card">
+              <p>
+                Log in with your phone number to view your subscription or manage your
+                Communicat account.
               </p>
 
-              <button
-                style={{ marginTop: "16px" }}
-                onClick={() => startCheckout("price_1SYCqeEltJqyAGZ0bN7Izg72")}
-              >
-                Subscribe – $4.99 / month
-              </button>
+              <label>Phone number (E.164 format)</label>
+              <input
+                type="tel"
+                placeholder="+573001234567"
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value)}
+              />
+
+              {!verificationSent && (
+                <button onClick={startPhoneLogin} disabled={loginBusy}>
+                  {loginBusy ? "Sending code…" : "Send login code"}
+                </button>
+              )}
+
+              {verificationSent && (
+                <>
+                  <label>Verification code</label>
+                  <input
+                    type="text"
+                    placeholder="123456"
+                    value={codeInput}
+                    onChange={(e) => setCodeInput(e.target.value)}
+                  />
+                  <button onClick={confirmLoginCode} disabled={loginBusy}>
+                    {loginBusy ? "Verifying…" : "Confirm code & log in"}
+                  </button>
+                </>
+              )}
+
+              {loginError && <p className="error">{loginError}</p>}
+
+              <p className="small" style={{ marginTop: "16px" }}>
+                You can also manage your subscription via the Communicat mobile app.
+              </p>
             </div>
+          </div>
+        );
+      }
+
+      // Logged in → show account + subscription & manage link
+      const status = computeStatusFromUserDoc(userDoc);
+
+      return (
+        <div className="container">
+          <h1>Communicat Account</h1>
+          {tokenError && <p className="error">{tokenError}</p>}
+          {userDocError && <p className="error">{userDocError}</p>}
+
+          <div className="card">
+            <p>
+              Logged in as:
+              <br />
+              <strong>{firebaseUser.phoneNumber || "(no phone on record)"}</strong>
+            </p>
+
+            <p>
+              <span className={`badge ${status.styleClass}`}>
+                {status.label}
+              </span>
+            </p>
+
+            <button onClick={openStripePortal}>
+              Manage subscription
+            </button>
+
+            <button
+              className="secondary-button"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
 
             <p className="small" style={{ marginTop: "22px" }}>
-              Secure payments powered by Stripe.
+              Subscription billing is securely handled by Stripe.
             </p>
           </div>
         </div>
