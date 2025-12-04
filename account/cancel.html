@@ -12,56 +12,87 @@
       color: #fef7ec;
       font-family: Arial, sans-serif;
       text-align: center;
-      padding-top: 80px;
-    }
-
-    .container {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 24px;
+      padding: 40px 20px;
     }
 
     h1 {
-      font-size: 28px;
+      font-size: 26px;
       margin-bottom: 12px;
-      color: #fef7ec;
     }
 
     p {
       font-size: 16px;
       line-height: 1.5;
-      color: #fef7ec;
+      margin-top: 10px;
+      margin-bottom: 20px;
     }
 
-    a {
-      color: #4ea8de;
-      font-size: 16px;
-      margin-top: 20px;
+    a.button {
       display: inline-block;
+      padding: 14px 22px;
+      margin-top: 20px;
+      background-color: #4ea8de;
+      color: white;
+      border-radius: 8px;
       text-decoration: none;
+      font-size: 18px;
     }
 
-    a:hover {
-      text-decoration: underline;
+    a.button:hover {
+      opacity: 0.9;
+    }
+
+    .note {
+      margin-top: 35px;
+      font-size: 14px;
+      opacity: 0.7;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Payment Canceled</h1>
-    <p>No worries — you can subscribe anytime to continue using Communicat in WhatsApp.</p>
 
-    <!-- ⭐ FIXED: Direct link back to subscription page -->
-    <a href="https://docs.communicatapp.com/account">Return to Subscription Options</a>
+  <h1>Payment Canceled</h1>
+  <p id="main-message"></p>
 
-    <!-- ⭐ OPTIONAL: Add a link back to WhatsApp -->
-    <br /><br />
-    <a href="https://wa.me/16283129282" target="_blank">Return to WhatsApp</a>
+  <a id="action-button" class="button" href="#">Continue</a>
 
-    <p style="margin-top: 40px; opacity: 0.7; font-size: 14px;">
-      If you canceled accidentally, feel free to retry your purchase.
-    </p>
-  </div>
+  <p id="note" class="note"></p>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("t"); // WhatsApp token if exists
+
+    const msg = document.getElementById("main-message");
+    const btn = document.getElementById("action-button");
+    const note = document.getElementById("note");
+
+    if (token) {
+      // ---------------------------
+      // ✅ WhatsApp user version
+      // ---------------------------
+      msg.textContent =
+        "Your payment was canceled. You can retry anytime to continue using Communicat in WhatsApp.";
+
+      btn.textContent = "Return to WhatsApp";
+      btn.href = "https://wa.me/16283129282";
+
+      note.textContent =
+        "If you canceled accidentally, simply retry the subscription process.";
+    } else {
+      // ---------------------------
+      // ✅ Normal account user version
+      // ---------------------------
+      msg.textContent =
+        "Your payment was canceled. You can subscribe anytime to unlock Communicat premium features.";
+
+      btn.textContent = "Back to Your Account";
+      btn.href = "/account/";
+
+      note.textContent =
+        "You can restart the checkout process from your account page whenever you're ready.";
+    }
+  </script>
+
 </body>
 </html>
