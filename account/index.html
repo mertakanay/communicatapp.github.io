@@ -515,81 +515,72 @@
               <p>Select a plan to continue:</p>
 
               {/* Subscription Info Card */}
-              <div className="card" style={{ marginTop: "28px" }}>
-                <h1 style={{ marginTop: 0, color: "#fef7ec" }}>Communicat Premium</h1>
-                <h2 style={{ marginTop: 0, color: "#fef7ec" }}>Subscription Benefits</h2>
+              <h2 style={{ marginTop: 0, color: "#fef7ec" }}>Communicat Premium</h2>
 
-                <p style={{ marginBottom: "14px", color: "#fef7ec", opacity: 0.9 }}>
-                  Your Communicat Premium subscription unlocks full access across both WhatsApp and the Communicat mobile apps.
+              <p style={{ marginBottom: "14px", color: "#fef7ec", opacity: 0.9 }}>
+                Your Communicat Premium subscription unlocks full access across both WhatsApp and the Communicat mobile apps.
+              </p>
+
+              {/* PRICING SECTION */}
+              <div
+                style={{
+                  marginTop: "24px",
+                  padding: "16px",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(254, 247, 236, 0.25)",
+                  background: "#1b1b1b",
+                }}
+              >
+                <h4 style={{ margin: "0 0 8px 0", color: "#fef7ec" }}>Communicat Premium</h4>
+                <p style={{ margin: 0, color: "#fef7ec", opacity: 0.85 }}>
+                  $4.99 / month, auto-renewing<br /><br />
+                  ❶ In-chat evaluations for real-time feedback within Communicat mobile apps<br />
+                  ❷ Access to the Communicat on WhatsApp for evaluations outside the app<br />
+                  ❸ Manual evaluations to privately review any message you send or receive<br />
+                  ❹ Daily conversation reports with full evaluation of the previous day’s chats<br />
+                  ❺ Extra in-chat tools for communication management<br />
                 </p>
+              </div>
 
-                {/* PRICING SECTION */}
-                <div
+              {/* LEGAL LINKS */}
+              <div
+                style={{
+                  marginTop: "20px",
+                  display: "flex",
+                  gap: "20px",
+                  justifyContent: "flex-start",
+                  flexWrap: "wrap",
+                }}
+              >
+                <a
+                  href="https://docs.communicatapp.com/privacy"
+                  target="_blank"
                   style={{
-                    marginTop: "24px",
-                    padding: "16px",
-                    borderRadius: "10px",
-                    border: "1px solid rgba(254, 247, 236, 0.25)",
-                    background: "#1b1b1b",
+                    color: "#fef7ec",
+                    textDecoration: "underline",
+                    fontSize: "11px",
                   }}
                 >
-                  <h4 style={{ margin: "0 0 8px 0", color: "#fef7ec" }}>Communicat Premium</h4>
-                  <p style={{ margin: 0, color: "#fef7ec", opacity: 0.85 }}>
-                    $4.99 / month, auto-renewing<br /><br />
-                    ❶ In-chat evaluations for real-time feedback within Communicat mobile apps<br />
-                    ❷ Access to the Communicat on WhatsApp for evaluations outside the app<br />
-                    ❸ Manual evaluations to privately review any message you send or receive<br />
-                    ❹ Daily conversation reports with full evaluation of the previous day’s chats<br />
-                    ❺ Extra in-chat tools for communication management<br />
-                  </p>
-                </div>
+                  Privacy Policy
+                </a>
 
-                {/* LEGAL LINKS */}
-                <div
+                <a
+                  href="https://docs.communicatapp.com/terms"
+                  target="_blank"
                   style={{
-                    marginTop: "20px",
-                    display: "flex",
-                    gap: "20px",
-                    justifyContent: "flex-start",
-                    flexWrap: "wrap",
+                    color: "#fef7ec",
+                    textDecoration: "underline",
+                    fontSize: "11px",
                   }}
                 >
-                  <a
-                    href="https://docs.communicatapp.com/privacy"
-                    target="_blank"
-                    style={{
-                      color: "#fef7ec",
-                      textDecoration: "underline",
-                      fontSize: "11px",
-                    }}
-                  >
-                    Privacy Policy
-                  </a>
-
-                  <a
-                    href="https://docs.communicatapp.com/terms"
-                    target="_blank"
-                    style={{
-                      color: "#fef7ec",
-                      textDecoration: "underline",
-                      fontSize: "11px",
-                    }}
-                  >
-                    Terms of Use
-                  </a>
-                </div>
+                  Terms of Use
+                </a>
               </div>
 
               <button
                 style={{
                   marginTop: "16px",
                   backgroundColor: "#4EA8DE",
-                  color: "#ffffff",
-                  border: "none",
-                  padding: "14px",
-                  borderRadius: "8px",
-                  fontSize: "18px",
-                  cursor: "pointer"
                 }}
                 onClick={() =>
                   startCheckout("price_1SYCqeEltJqyAGZ0bN7Izg72", waData.userId)
@@ -755,14 +746,7 @@
               // NOT ACTIVE → always show Subscribe Now
               <button
                 style={{
-                  marginTop: "16px",
                   backgroundColor: "#4EA8DE",
-                  color: "#ffffff",
-                  border: "none",
-                  padding: "14px",
-                  borderRadius: "8px",
-                  fontSize: "18px",
-                  cursor: "pointer"
                 }}
                 onClick={() =>
                   startCheckout("price_1SYCqeEltJqyAGZ0bN7Izg72", firebaseUser.uid)
