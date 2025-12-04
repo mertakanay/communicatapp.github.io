@@ -53,6 +53,10 @@
   <p id="note" class="note"></p>
 
   <script>
+    gtag('event', 'subscription_checkout_success', {
+      method: 'stripe'
+    });
+
     const params = new URLSearchParams(window.location.search);
     const token = params.get("t"); // WhatsApp token if exists
 

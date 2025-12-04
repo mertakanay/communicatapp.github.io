@@ -5,6 +5,15 @@
   <title>Communicat Account & Subscription</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Google Analytics (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9LX192QD0Z"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-9LX192QD0Z');
+  </script>
+
   <!-- React + ReactDOM -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -413,6 +422,12 @@
       // START CHECKOUT (WhatsApp flow)
       // -------------------------------
       function startCheckout(selectedPriceId, waUserId) {
+        gtag("event", "start_checkout", {
+          price_id: selectedPriceId,
+          user_id: waUserId,
+          flow: token ? "whatsapp" : "account",
+        });
+
         const urlParams = new URLSearchParams(window.location.search);
         const tokenId = urlParams.get("t");
 
