@@ -18,132 +18,173 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
 
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #1e1e1e;
-      color: #fef7ec;
-      font-family: Arial, sans-serif;
-    }
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #1e1e1e;
+    color: #fef7ec;
+    font-family: Arial, sans-serif;
+  }
 
+  /* 🔥 Mobile font scaling */
+  html {
+    font-size: 16px;
+  }
+
+  @media (max-width: 400px) {
+    html {
+      font-size: 15px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    html {
+      font-size: 14px;
+    }
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 32px;
+    text-align: center;
+  }
+
+  @media (max-width: 400px) {
     .container {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 32px;
-      text-align: center;
+      padding: 24px 16px;
     }
+  }
 
-    h1 {
-      font-size: 28px;
-      margin-bottom: 16px;
-      color: #fef7ec;
-    }
+  h1 {
+    font-size: 28px;
+    margin-bottom: 16px;
+    color: #fef7ec;
+  }
 
-    p {
-      font-size: 16px;
-      line-height: 1.5;
-      margin-bottom: 20px;
-      color: #fef7ec;
-    }
+  p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    color: #fef7ec;
+  }
 
-    .loader {
-      margin-top: 40px;
-      font-size: 18px;
-      opacity: 0.7;
-    }
+  .loader {
+    margin-top: 40px;
+    font-size: 18px;
+    opacity: 0.7;
+  }
 
+  .card {
+    background: #2a2a2a;
+    padding: 24px;
+    border-radius: 12px;
+    margin-top: 20px;
+    text-align: left;
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 360px) {
     .card {
-      background: #2a2a2a;
-      padding: 24px;
-      border-radius: 12px;
-      margin-top: 20px;
-      text-align: left;
+      padding: 18px;
+      font-size: 0.9rem;
     }
+  }
 
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 20px;
-      background-color: #4ea8de;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      cursor: pointer;
-    }
+  button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    background-color: #4ea8de;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 
-    button:hover {
-      opacity: 0.9;
-    }
+  button:hover {
+    opacity: 0.9;
+  }
 
-    .secondary-button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 12px;
-      background-color: #444;
-      color: #fef7ec;
-      border: 1px solid #777;
-      border-radius: 8px;
+  .secondary-button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    background-color: #444;
+    color: #fef7ec;
+    border: 1px solid #777;
+    border-radius: 8px;
+    font-size: 16px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .secondary-button:hover {
+    opacity: 0.95;
+  }
+
+  @media (max-width: 360px) {
+    button, .secondary-button {
       font-size: 16px;
-      cursor: pointer;
+      padding: 12px;
     }
+  }
 
-    .secondary-button:hover {
-      opacity: 0.95;
-    }
+  .error {
+    color: #ff7b7b;
+    margin-top: 20px;
+    font-weight: bold;
+  }
 
-    .error {
-      color: #ff7b7b;
-      margin-top: 20px;
-      font-weight: bold;
-    }
+  .small {
+    font-size: 14px;
+    opacity: 0.7;
+  }
 
-    .small {
-      font-size: 14px;
-      opacity: 0.7;
-    }
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    background: #333;
+    color: #fef7ec;
+    margin-bottom: 8px;
+  }
 
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      background: #333;
-      color: #fef7ec;
-      margin-bottom: 8px;
-    }
+  .badge-active {
+    background: #168f5b;
+  }
 
-    .badge-active {
-      background: #168f5b;
-    }
+  .badge-trial {
+    background: #a87b00;
+  }
 
-    .badge-trial {
-      background: #a87b00;
-    }
+  .badge-none {
+    background: #555;
+  }
 
-    .badge-none {
-      background: #555;
-    }
+  input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #555;
+    margin-top: 8px;
+    margin-bottom: 12px;
+    background: #111;
+    color: #fef7ec;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
 
-    input {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #555;
-      margin-top: 8px;
-      margin-bottom: 12px;
-      background: #111;
-      color: #fef7ec;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-
-    label {
-      font-size: 14px;
-      display: block;
-      margin-top: 8px;
-      color: #fef7ec;
-    }
+  label {
+    font-size: 14px;
+    display: block;
+    margin-top: 8px;
+    color: #fef7ec;
+  }
   </style>
 </head>
 
