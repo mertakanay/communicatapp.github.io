@@ -522,17 +522,6 @@
                 Your Communicat Premium subscription unlocks full access across both <strong>WhatsApp</strong> and the <strong>Communicat mobile apps.</strong>
               </p>
 
-              <button
-                style={{
-                  marginTop: "16px",
-                }}
-                onClick={() =>
-                  startCheckout("price_1SYCqeEltJqyAGZ0bN7Izg72", waData.userId)
-                }
-              >
-                Subscribe – $4.99 / month
-            </button>
-
               {/* PRICING SECTION */}
               <div
                 style={{
@@ -553,6 +542,21 @@
                   ❺ Extra in-chat tools for communication management<br />
                 </p>
               </div>
+
+              <button
+                style={{
+                  marginTop: "16px",
+                }}
+                onClick={() =>
+                  startCheckout("price_1SYCqeEltJqyAGZ0bN7Izg72", waData.userId)
+                }
+              >
+                Subscribe – $4.99 / month
+              </button>
+
+              <p className="small" style={{ marginTop: "22px" }}>
+                Subscription billing is securely handled by Stripe.
+              </p>
 
               {/* LEGAL LINKS */}
               <div
@@ -588,11 +592,7 @@
                   Terms of Use
                 </a>
               </div>
-
-              <p className="small" style={{ marginTop: "22px" }}>
-                Subscription billing is securely handled by Stripe.
-              </p>
-              </div>
+            </div>
 
               {/* App Links Card */}
             <div className="card" style={{ marginTop: "50px", textAlign: "center" }}>
