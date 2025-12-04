@@ -517,26 +517,75 @@
               {/* FULL ACCESS PLAN - ENABLED */}
               <div
                 style={{
-                  marginTop: "20px",
-                  padding: "20px",
-                  background: "#333",
-                  borderRadius: "12px",
-                  border: "2px solid #4ea8de",
+                  marginTop: "15px",
+                  padding: "10px",
                 }}
               >
-                <h3
+              {/* Subscription Info Card */}
+              <div className="card" style={{ marginTop: "28px" }}>
+                <h3 style={{ marginTop: 0, color: "#fef7ec" }}>Subscription Benefits</h3>
+
+                <p style={{ marginBottom: "14px", color: "#fef7ec", opacity: 0.9 }}>
+                  Your Communicat Premium subscription unlocks full access across both WhatsApp 
+                  <strong>and the Communicat mobile apps</strong>.
+                </p>
+
+                {/* PRICING SECTION */}
+                <div
                   style={{
-                    margin: "0 0 10px 0",
-                    color: "#fef7ec",
+                    marginTop: "24px",
+                    padding: "16px",
+                    borderRadius: "10px",
+                    border: "1px solid rgba(254, 247, 236, 0.25)",
+                    background: "#1b1b1b",
                   }}
                 >
-                  Communicat Full Access
-                </h3>
+                  <h4 style={{ margin: "0 0 8px 0", color: "#fef7ec" }}>Communicat Premium</h4>
+                  <p style={{ margin: 0, color: "#fef7ec", opacity: 0.85 }}>
+                    $4.99 / month, auto-renewing<br /><br />
+                    ❶ In-chat evaluations for real-time feedback within Communicat mobile apps<br />
+                    ❷ Access to the Communicat on WhatsApp for evaluations outside the app<br />
+                    ❸ Manual evaluations to privately review any message you send or receive<br />
+                    ❹ Daily conversation reports with full evaluation of the previous day’s chats<br />
+                    ❺ Extra in-chat tools for communication management<br />
+                  </p>
+                </div>
 
-                <p style={{ margin: 0, color: "#ddd" }}>
-                  Access all premium communication-enhancement features across both
-                  the Communicat app and WhatsApp.
-                </p>
+                {/* LEGAL LINKS */}
+                <div
+                  style={{
+                    marginTop: "20px",
+                    display: "flex",
+                    gap: "20px",
+                    justifyContent: "flex-start",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <a
+                    href="https://docs.communicatapp.com/privacy"
+                    target="_blank"
+                    style={{
+                      color: "#fef7ec",
+                      textDecoration: "underline",
+                      fontSize: "11px",
+                    }}
+                  >
+                    Privacy Policy
+                  </a>
+
+                  <a
+                    href="https://docs.communicatapp.com/terms"
+                    target="_blank"
+                    style={{
+                      color: "#fef7ec",
+                      textDecoration: "underline",
+                      fontSize: "11px",
+                    }}
+                  >
+                    Terms of Use
+                  </a>
+                </div>
+              </div>
 
                 <button
                   style={{ marginTop: "16px" }}
