@@ -521,31 +521,37 @@
 
       // Helper: compute subscription status from Firestore doc
       function computeStatusFromUserDoc(doc) {
+        const nowMs = Date.now();
+
         if (!doc) {
           return {
             label: "No active subscription",
             styleClass: "badge-none",
+            active: false,
           };
         }
 
-        const nowMs = Date.now();
+        // TRIAL
         const trialEndsAtMs = doc.trialEndsAt?.toMillis
           ? doc.trialEndsAt.toMillis()
           : null;
+
         const hasActiveTrial =
           trialEndsAtMs && nowMs < trialEndsAtMs && doc.isTrialFinished === false;
 
-        const legacyActive =
-          doc.isSubscribed === true &&
-          doc.subscriptionEndsAt?.toMillis &&
-          nowMs < doc.subscriptionEndsAt.toMillis();
+        // SUBSCRIPTION VALIDATION
+        const endsMs = doc.subscriptionEndsAt?.toMillis
+          ? doc.subscriptionEndsAt.toMillis()
+          : 0;
 
-        const hasActiveSubscription = doc.isSubscriptionActive === true || legacyActive;
+        const hasActiveSubscription =
+          doc.isSubscribed === true && nowMs < endsMs;
 
         if (hasActiveSubscription) {
           return {
             label: "Active subscription",
             styleClass: "badge-active",
+            active: true,
           };
         }
 
@@ -553,12 +559,14 @@
           return {
             label: "Trial active",
             styleClass: "badge-trial",
+            active: false,
           };
         }
 
         return {
           label: "No active subscription",
           styleClass: "badge-none",
+          active: false,
         };
       }
 
@@ -647,9 +655,21 @@
               </span>
             </p>
 
-            <button onClick={openStripePortal}>
-              Manage subscription
-            </button>
+            {status.active ? (
+              // ACTIVE subscription → show Manage UI
+              <button onClick={openStripePortal}>
+                Manage subscription
+              </button>
+            ) : (
+              // NOT ACTIVE → always show Subscribe Now
+              <button
+                onClick={() =>
+                  startCheckout("price_1SYCqeEltJqyAGZ0bN7Izg72", firebaseUser.uid)
+                }
+              >
+                Subscribe now – $4.99/month
+              </button>
+            )}
 
             <button
               className="secondary-button"
